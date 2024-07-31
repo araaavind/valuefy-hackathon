@@ -1,0 +1,90 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+.video-controls {
+  display: flex;
+  position: fixed;
+  top: 10%;
+  right: 52%;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#startCall {
+  background-color: #007bff;
+  color: #fff;
+}
+
+#startCall:hover {
+  background-color: #0056b3;
+}
+
+#muteCall {
+  background-color: #ffc107;
+  color: #fff;
+}
+
+#muteCall:hover {
+  background-color: #e0a800;
+}
+
+#endCall {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+#endCall:hover {
+  background-color: #c82333;
+}
+
+video {
+  position: absolute;
+  top: 20%;
+  left: 25%;
+  width: 720px;
+  height: 480px;
+  margin: 10px;
+  background-color: black;
+}
+
+#localVideo {
+  width: 200px;
+  height: 120px;
+  background-color: #0056b3;
+}
+
+.back-button {
+  position: fixed;
+  top: 7.2%;
+  right: 25%;
+  padding: 16px;
+  background-color: #28a745;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: center;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+.back-button:hover {
+  background-color: #218838;
+}

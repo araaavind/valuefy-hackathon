@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Call</title>
+  <link rel="stylesheet" href="call.css">
+</head>
+
+<body>
+  <div class="video-controls">
+    <button id="startCall">Start Call</button>
+    <button id="muteCall">Mute Call</button>
+    <button id="endCall">End Call</button>
+  </div>
+  <div class="video-container">
+    <video id="remoteVideo" autoplay playsinline></video>
+    <video id="localVideo" autoplay playsinline></video>
+  </div>
+  <a href="/" class="back-button">Back to Chat</a>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="call.js"></script>
+</body>
+
+</html>
