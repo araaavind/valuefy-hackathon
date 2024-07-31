@@ -9,14 +9,14 @@
 </head>
 
 <body>
+  <div class="video-container">
+    <video id="localVideo" autoplay playsinline muted></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+  </div>
   <div class="video-controls">
     <button id="startCall">Start Call</button>
     <button id="muteCall">Mute Call</button>
     <button id="endCall">End Call</button>
-  </div>
-  <div class="video-container">
-    <video id="remoteVideo" autoplay playsinline></video>
-    <video id="localVideo" autoplay playsinline></video>
   </div>
   <a href="/" class="back-button">Back to Chat</a>
   <script src="/socket.io/socket.io.js"></script>

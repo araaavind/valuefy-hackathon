@@ -5,7 +5,6 @@ const muteCallButton = document.getElementById('muteCall');
 const endCallButton = document.getElementById('endCall');
 
 let localStream;
-let remoteStream;
 let peerConnection;
 const configuration = {
   iceServers: [
@@ -13,7 +12,7 @@ const configuration = {
   ]
 };
 
-// Function to get URL parameters
+// Get username and room from URL parameters
 function getUrlParameters() {
   const params = {};
   const parser = new URL(window.location.href);
@@ -27,50 +26,92 @@ function getUrlParameters() {
 }
 
 const { username, room } = getUrlParameters();
-
 socket.emit('join', room);
 
-socket.on('user joined', (id) => {
-  createOffer();
-});
+// Event listeners
+startCallButton.addEventListener('click', startVideoCall);
+muteCallButton.addEventListener('click', toggleMute);
+endCallButton.addEventListener('click', endCall);
 
-async function createOffer() {
-  await startVideoCall();
+// Start the video call
+async function startVideoCall() {
+  // Get user media (video and audio)
+  localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  document.getElementById('localVideo').srcObject = localStream;
+
+  // Create peer connection
+  peerConnection = new RTCPeerConnection(configuration);
+
+  // Add local stream tracks to the peer connection
+  localStream.getTracks().forEach((track) => {
+    peerConnection.addTrack(track, localStream);
+  });
+
+  // Handle remote track
+  peerConnection.ontrack = (event) => {
+    const remoteVideo = document.getElementById('remoteVideo');
+    remoteVideo.srcObject = event.streams[0];
+  };
+
+  // Handle ICE candidates
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      socket.emit('candidate', event.candidate, room);
+    }
+  };
+
+  // Create an offer
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
   socket.emit('offer', offer, room);
 }
 
-async function createAnswer(offer) {
-  await startVideoCall();
+// Toggle mute/unmute
+function toggleMute() {
+  if (localStream) {
+    const audioTrack = localStream.getAudioTracks()[0];
+    audioTrack.enabled = !audioTrack.enabled;
+    muteCallButton.textContent = audioTrack.enabled ? 'Mute Call' : 'Unmute Call';
+  }
+}
+
+// End the call
+function endCall() {
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+    localStream = null;
+  }
+  document.getElementById('localVideo').srcObject = null;
+  document.getElementById('remoteVideo').srcObject = null;
+}
+
+// Handle incoming offer
+socket.on('offer', async (offer) => {
+  if (!peerConnection) {
+    createPeerConnection();
+  }
   await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
   const answer = await peerConnection.createAnswer();
   await peerConnection.setLocalDescription(answer);
   socket.emit('answer', answer, room);
-}
-
-socket.on('offer', async (offer, id) => {
-  if (!peerConnection) {
-    await createAnswer(offer);
-  }
 });
 
+// Handle incoming answer
 socket.on('answer', (answer) => {
   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 
+// Handle incoming ICE candidates
 socket.on('candidate', (candidate) => {
   peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
 });
 
-startCallButton.addEventListener('click', startVideoCall);
-muteCallButton.addEventListener('click', toggleMute);
-endCallButton.addEventListener('click', endCall);
-
-async function startVideoCall() {
-  localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  document.getElementById('localVideo').srcObject = localStream;
-
+// Create peer connection for incoming call
+function createPeerConnection() {
   peerConnection = new RTCPeerConnection(configuration);
 
   peerConnection.onicecandidate = (event) => {
@@ -80,43 +121,10 @@ async function startVideoCall() {
   };
 
   peerConnection.ontrack = (event) => {
-    console.log('getting local tracks');
-    if (!remoteStream) {
-      remoteStream = new MediaStream();
-      document.getElementById('remoteVideo').srcObject = remoteStream;
-    }
-    remoteStream.addTrack(event.track);
+    document.getElementById('remoteVideo').srcObject = event.streams[0];
   };
 
   localStream.getTracks().forEach((track) => {
     peerConnection.addTrack(track, localStream);
   });
-
-  const offer = await peerConnection.createOffer();
-  await peerConnection.setLocalDescription(offer);
-  socket.emit('offer', offer, room);
-}
-
-function toggleMute() {
-  if (localStream) {
-    localStream.getAudioTracks()[0].enabled = !localStream.getAudioTracks()[0].enabled;
-    muteCallButton.textContent = localStream.getAudioTracks()[0].enabled ? 'Mute Call' : 'Unmute Call';
-  }
-}
-
-function endCall() {
-  if (peerConnection) {
-    peerConnection.close();
-    peerConnection = null;
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
-      localStream = null;
-    }
-    if (remoteStream) {
-      remoteStream.getTracks().forEach(track => track.stop());
-      remoteStream = null;
-    }
-    document.getElementById('localVideo').srcObject = null;
-    document.getElementById('remoteVideo').srcObject = null;
-  }
 }

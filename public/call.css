@@ -4,26 +4,37 @@ body {
   margin: 0;
   padding: 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   height: 100vh;
-  flex-direction: column;
+}
+
+.video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+video {
+  width: 400px;
+  height: 300px;
+  background-color: black;
+  margin: 10px;
+  border: 2px solid #007bff;
 }
 
 .video-controls {
   display: flex;
-  position: fixed;
-  top: 10%;
-  right: 52%;
   gap: 10px;
   margin-bottom: 20px;
 }
 
 button {
-  padding: 16px;
+  padding: 10px 20px;
   font-size: 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
@@ -54,35 +65,12 @@ button {
   background-color: #c82333;
 }
 
-video {
-  position: absolute;
-  top: 20%;
-  left: 25%;
-  width: 720px;
-  height: 480px;
-  margin: 10px;
-  background-color: black;
-}
-
-#localVideo {
-  width: 200px;
-  height: 120px;
-  background-color: #0056b3;
-}
-
 .back-button {
-  position: fixed;
-  top: 7.2%;
-  right: 25%;
-  padding: 16px;
+  padding: 10px 20px;
   background-color: #28a745;
   color: #fff;
   text-decoration: none;
-  border-radius: 8px;
-  font-size: 16px;
-  text-align: center;
-  display: inline-block;
-  margin-top: 20px;
+  border-radius: 5px;
 }
 
 .back-button:hover {
