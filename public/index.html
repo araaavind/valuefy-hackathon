@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat Interface</title>
-  <link rel="stylesheet" href="./index.css">
+  <title>Video Calling App</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
@@ -15,13 +15,15 @@
     </div>
     <div class="chat-messages" id="messages"></div>
     <div class="chat-input">
-      <input id="input" autocomplete="off" placeholder="Type your message..."><button
-        onclick="sendMessage()">Send</button>
+      <form id="chat-form">
+        <input id="input" autocomplete="off" placeholder="Type your message..."><button type="submit">Send</button>
+      </form>
     </div>
   </div>
+  <video id="localVideo" autoplay playsinline></video>
+  <video id="remoteVideo" autoplay playsinline></video>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="./index.js">
-  </script>
+  <script src="index.js"></script>
 </body>
 
 </html>

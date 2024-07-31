@@ -2,8 +2,44 @@ const socket = io();
 
 const messages = document.getElementById('messages');
 const input = document.getElementById('input');
+const chatForm = document.getElementById('chat-form');
+
+let localStream;
+let remoteStream;
+let peerConnection;
+const configuration = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+  ]
+};
 
 let username = prompt('Enter your username:');
+let room = 'wealthfy';
+
+chatForm.addEventListener('submit', function (event) {
+  event.preventDefault();
+  sendMessage();
+});
+
+socket.emit('join', room);
+
+socket.on('user joined', (id) => {
+  createOffer();
+});
+
+socket.on('offer', async (offer, id) => {
+  if (!peerConnection) {
+    await createAnswer(offer);
+  }
+});
+
+socket.on('answer', (answer) => {
+  peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+});
+
+socket.on('candidate', (candidate) => {
+  peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+});
 
 function sendMessage() {
   const message = input.value;
@@ -16,10 +52,7 @@ function sendMessage() {
 }
 
 socket.on('chat message', function (msg) {
-  console.log(msg);
-  if (msg.username != username) {
-    addMessage(msg, 'bot');
-  }
+  addMessage(msg, 'bot');
 });
 
 function addMessage(message, sender) {
@@ -39,4 +72,44 @@ function addMessage(message, sender) {
   messageElement.appendChild(contentElement);
   messages.appendChild(messageElement);
   messages.scrollTop = messages.scrollHeight;
+}
+
+async function startVideoCall() {
+  localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  document.getElementById('localVideo').srcObject = localStream;
+
+  peerConnection = new RTCPeerConnection(configuration);
+
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      socket.emit('candidate', event.candidate, room);
+    }
+  };
+
+  peerConnection.ontrack = (event) => {
+    if (!remoteStream) {
+      remoteStream = new MediaStream();
+      document.getElementById('remoteVideo').srcObject = remoteStream;
+    }
+    remoteStream.addTrack(event.track);
+  };
+
+  localStream.getTracks().forEach((track) => {
+    peerConnection.addTrack(track, localStream);
+  });
+}
+
+async function createOffer() {
+  await startVideoCall();
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  socket.emit('offer', offer, room);
+}
+
+async function createAnswer(offer) {
+  await startVideoCall();
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+  socket.emit('answer', answer, room);
 }

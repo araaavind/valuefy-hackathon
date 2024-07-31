@@ -11,8 +11,21 @@ app.use(express.static('public'));
 io.on('connection', (socket) => {
   console.log('A user connected');
 
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+  socket.on('join', (room) => {
+    socket.join(room);
+    socket.to(room).emit('user joined', socket.id);
+  });
+
+  socket.on('offer', (offer, room) => {
+    socket.to(room).emit('offer', offer, socket.id);
+  });
+
+  socket.on('answer', (answer, room) => {
+    socket.to(room).emit('answer', answer, socket.id);
+  });
+
+  socket.on('candidate', (candidate, room) => {
+    socket.to(room).emit('candidate', candidate, socket.id);
   });
 
   socket.on('disconnect', () => {

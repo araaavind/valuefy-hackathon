@@ -7,11 +7,11 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  flex-direction: column;
 }
 
 .chat-container {
   width: 400px;
-  min-height: 400px;
   max-width: 100%;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -19,6 +19,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .chat-header {
@@ -71,6 +72,11 @@ body {
   border-top: 1px solid #ccc;
 }
 
+.chat-input form {
+  display: flex;
+  width: 100%;
+}
+
 .chat-input input {
   flex: 1;
   padding: 16px;
@@ -92,4 +98,11 @@ body {
 
 .chat-input button:hover {
   background-color: #0056b3;
+}
+
+video {
+  width: 300px;
+  height: 200px;
+  margin: 10px;
+  background-color: black;
 }
